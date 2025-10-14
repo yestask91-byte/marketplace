@@ -1,43 +1,33 @@
-# 🧾 Marketplace API Documentation
+# 🧾 API Documentation
 
-## Base URL
+## 📦 Base URL
 ```
-base_url/api/v1/marketplace
-```
-
----
-
-## 🔑 Authentication
-
-Har bir so‘rov uchun `API-key` headerda yuborilishi **majburiy**:
-
-```bash
---header 'API-key: demo-CI6IkpXVCJ9.eyJhdXRob3'
+base_url/api/v1
 ```
 
 ---
 
-## 🛒 1. Get Products
+## 🛒 **1. Get Marketplace Products**
 
-### Endpoint
+**Endpoint:**  
 ```
-POST /api/v1/marketplace/products
+POST /marketplace/products
 ```
 
-### Headers
-| Key | Value |
-|-----|--------|
-| Content-Type | application/json |
-| API-key | sizning API kalitingiz |
+**Headers:**
+| Name | Type | Required | Description |
+|------|------|-----------|-------------|
+| API-key | string | ✅ | API kaliti |
+| Content-Type | string | ✅ | `application/json` |
 
-### Request Body
+**Request Body:**
 ```json
 {
   "org_id": "ORG_ID"
 }
 ```
 
-### Success Response
+**✅ Success Response:**
 ```json
 {
   "code": 0,
@@ -64,44 +54,35 @@ POST /api/v1/marketplace/products
 }
 ```
 
-### Error Responses
-#### ❌ Rate Limit
+**❌ Error Responses:**
 ```json
 {
   "error": "Har 1 daqiqada faqat 1 ta so‘rov yuborish mumkin. Qolgan vaqt: 19s"
 }
 ```
-
-#### ❌ API Key Not Found
 ```json
 {
   "error": "API-Key header topilmadi"
 }
 ```
 
-### cURL Example
-```bash
-curl --location 'base_url/api/v1/marketplace/products' --header 'API-key: demo-CI6IkpXVCJ9.eyJhdXRob3' --header 'Content-Type: application/json' --data '{
-    "org_id": "ORG_ID"
-}'
-```
-
 ---
 
-## 🧾 2. Create Order
+## 🧾 **2. Create Marketplace Order**
 
-### Endpoint
+**Endpoint:**  
 ```
-POST /api/v1/marketplace/order
+POST /marketplace/order
 ```
 
-### Headers
-| Key | Value |
-|-----|--------|
-| Content-Type | application/json |
-| API-key | sizning API kalitingiz |
+**Headers:**
+| Name | Type | Required | Description |
+|------|------|-----------|-------------|
+| API-Key | string | ✅ | API kaliti |
+| AppName | string | ✅ | Ilova nomi |
+| Content-Type | string | ✅ | `application/json` |
 
-### Request Body
+**Request Body:**
 ```json
 {
   "org_id": "51824731",
@@ -128,7 +109,7 @@ POST /api/v1/marketplace/order
 }
 ```
 
-### Success Response
+**✅ Success Response:**
 ```json
 {
   "code": 0,
@@ -137,52 +118,85 @@ POST /api/v1/marketplace/order
 }
 ```
 
-### cURL Example
-```bash
-curl --location 'base_url/api/v1/marketplace/order' --header 'API-key: demo-CI6IkpXVCJ9.eyJhdXRob3' --header 'Content-Type: application/json' --data '{
-    "org_id": "51824731",
-    "type": 1,
-    "note": "test eslatman",
-    "delivery_info": {
-        "scheduled_time": "",
-        "distance": 1200,
-        "delivery_fee": 15000
+---
+
+## 🏬 **3. Branch List**
+
+**Endpoint:**  
+```
+POST /branch/list
+```
+
+**Headers:**
+| Name | Type | Required | Description |
+|------|------|-----------|-------------|
+| Content-Type | string | ✅ | `application/json` |
+
+**Request Body:**
+```json
+{
+  "org_id": "51824731"
+}
+```
+
+**✅ Success Response:**
+```json
+{
+  "code": 0,
+  "message": "OK",
+  "data": [
+    {
+      "id": 1,
+      "name": "Yespos 1-Fillial",
+      "comment": "",
+      "address": "",
+      "phone": ""
     },
-    "items": [
-        {
-            "item": 2,
-            "qty": 2,
-            "price": 15000
-        }
-    ],
-    "payments": [
-        {
-            "payment_id": 1,
-            "value": 30000
-        }
-    ]
-}'
+    {
+      "id": 2,
+      "name": "Yespos 2-Fillial",
+      "comment": "",
+      "address": "",
+      "phone": ""
+    }
+  ]
+}
+```
+
+**❌ Error Response:**
+```json
+{
+  "error": "Har 1 daqiqada faqat 1 ta so‘rov yuborish mumkin. Qolgan vaqt: 57s"
+}
 ```
 
 ---
 
-## ⚠️ Error Codes
+## 🌿 **4. Get Branches (Bearer token bilan)**
 
-| Code | Description |
-|------|--------------|
-| `0` | OK |
-| `400` | Invalid request or missing fields |
-| `401` | API-Key missing or invalid |
-| `429` | Too many requests (rate limit) |
+**Endpoint:**  
+```
+GET /branches
+```
 
----
+**Headers:**
+| Name | Type | Required | Description |
+|------|------|-----------|-------------|
+| Authorization | string | ✅ | `Bearer <token>` |
 
-## 🧠 Notes
-
-- Har bir `org_id` uchun 1 daqiqada **faqat bitta** `/products` so‘rovi yuborilishi mumkin.  
-- `API-key` xavfsiz joyda saqlanishi kerak — uni ommaga e’lon qilmang.  
-- `delivery_info.distance` — metrda, `delivery_fee` — so‘mda ko‘rsatiladi.
-
----
-
-**© 2025 Marketplace API – All rights reserved**
+**✅ Success Response:**
+```json
+{
+  "code": 0,
+  "message": "OK",
+  "data": [
+    {
+      "id": 1,
+      "name": "GULCHEXRA MARKET YAGONA",
+      "comment": "",
+      "address": "",
+      "phone": ""
+    }
+  ]
+}
+```
