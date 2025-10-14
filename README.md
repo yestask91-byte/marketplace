@@ -171,32 +171,4 @@ POST /branch/list
 ```
 
 ---
-
-## 🌿 **4. Get Branches (Bearer token bilan)**
-
-**Endpoint:**  
-```
-GET /branches
-```
-
-**Headers:**
-| Name | Type | Required | Description |
-|------|------|-----------|-------------|
-| Authorization | string | ✅ | `Bearer <token>` |
-
-**✅ Success Response:**
-```json
-{
-  "code": 0,
-  "message": "OK",
-  "data": [
-    {
-      "id": 1,
-      "name": "GULCHEXRA MARKET YAGONA",
-      "comment": "",
-      "address": "",
-      "phone": ""
-    }
-  ]
-}
 ```
