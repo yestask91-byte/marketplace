@@ -22,9 +22,7 @@ POST /marketplace/products
 
 **Request Body:**
 ```json
-{
-  "org_id": "ORG_ID"
-}
+{}
 ```
 
 **✅ Success Response:**
@@ -85,7 +83,6 @@ POST /marketplace/order
 **Request Body:**
 ```json
 {
-  "org_id": "51824731",
   "type": 1,
   "note": "test eslatman",
   "delivery_info": {
@@ -134,9 +131,7 @@ POST /branch/list
 
 **Request Body:**
 ```json
-{
-  "org_id": "51824731"
-}
+{}
 ```
 
 **✅ Success Response:**
