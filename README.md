@@ -167,3 +167,40 @@ POST /branch/list
 
 ---
 ```
+## 🔹 5. Webhook: Mahsulot yangilanishi
+
+Webhook URL **partner tomonidan taqdim etiladi.**
+Tizim mahsulot narxi yoki qoldig‘i o‘zgarganda, avtomatik quyidagi JSON yuboradi.
+
+### Endpoint
+`POST {partner_webhook_url}`
+
+### Request Body
+```json
+{
+    "api_key": "demo-CI6IkpXVCJ9.eyJhdXRob3",
+    "branch": 1,
+    "products": [
+        {
+            "product_id": 1,
+            "price": 1000,
+            "stock": 2
+        }
+    ]
+}
+```
+
+### ✅ Success Response
+```json
+{
+    "status": "success",
+    "message": "Webhook received successfully"
+}
+```
+
+### ❌ Error Response
+```json
+{
+    "error": "Invalid API key"
+}
+```
