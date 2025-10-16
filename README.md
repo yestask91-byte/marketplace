@@ -166,9 +166,9 @@ POST /branch/list
 ```
 
 ---
-```
 
-## 🏬 **4. Webhook: Qoldiq va Narx yangilanishi**
+
+## **4. Webhook: Qoldiq va Narx yangilanishi**
 
 Webhook URL **partner tomonidan taqdim etiladi.**
 Tizim mahsulot narxi yoki qoldig‘i o‘zgarganda, avtomatik quyidagi JSON yuboradi.
