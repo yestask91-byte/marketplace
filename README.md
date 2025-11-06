@@ -240,6 +240,11 @@ Tizim mahsulot narxi yoki qoldig‘i o‘zgarganda, avtomatik quyidagi JSON yubo
 ### Endpoint
 `POST {partner_webhook_url}`
 
+### Headers
+## Header	Qiymat
+Authorization	Basic <base64(username:password)>
+Content-Type	application/json
+
 ### Request Body
 ```json
 {
