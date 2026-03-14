@@ -67,27 +67,39 @@ Success response:
 
 ```json
 {
-  "code": 0,
-  "message": "OK",
-  "data": [
-    {
-      "id": 2,
-      "parent": 0,
-      "name": "Shirinliklar",
-      "image": "",
-      "description": "",
-      "products": [
+    "code": 0,
+    "message": "OK",
+    "data": [
         {
-          "id": 38,
-          "category": 2,
-          "name": "Tort",
-          "sku": "4",
-          "image": "",
-          "description": ""
+            "id": 66,
+            "parent": 0,
+            "name": "Напитки",
+            "image": "temp-images/upload-20260108-224216-a8a8e163.jpg",
+            "description": "",
+            "products": [
+                {
+                    "id": 549,
+                    "category": 66,
+                    "name": "Coca-cola 0.5L ",
+                    "sku": "10523",
+                    "image": "",
+                    "description": "",
+                    "classcode": "02106999999000000",
+                    "package_code": 1514409
+                },
+                {
+                    "id": 550,
+                    "category": 66,
+                    "name": "Coca-cola 1.0L edited",
+                    "sku": "10524",
+                    "image": "",
+                    "description": "",
+                    "classcode": "02106999999000000",
+                    "package_code": 1514409
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
 ```
 
