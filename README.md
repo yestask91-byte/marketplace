@@ -1,31 +1,45 @@
-# 🧾 API Documentation
+# Marketplace API Documentation
 
-## 📦 Base URL
-```
+## Base URL
+
+```text
 base_url/api/v1
 ```
 
----
+## 1. Get Marketplace Products
 
-## 🛒 **1. Get Marketplace Products**
+Endpoint:
 
-**Endpoint:**  
-```
+```text
 POST /marketplace/products
 ```
 
-**Headers:**
-| Name | Type | Required | Description |
-|------|------|-----------|-------------|
-| API-key | string | ✅ | API kaliti |
-| Content-Type | string | ✅ | `application/json` |
+Headers:
 
-**Request Body:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| API-Key | string | Yes | API kaliti |
+| Content-Type | string | Yes | `application/json` |
+
+Request body:
+
 ```json
 {}
 ```
 
-**✅ Success Response:**
+Rate limit:
+
+- Scope: `API-Key`
+- Window: `1 minute`
+- Limit: `15 requests`
+
+Cache:
+
+- Scope: `API-Key`
+- TTL: `1 minute`
+
+Success response:
+
 ```json
 {
   "code": 0,
@@ -52,39 +66,187 @@ POST /marketplace/products
 }
 ```
 
-**❌ Error Responses:**
+Error responses:
+
 ```json
 {
-  "error": "Har 1 daqiqada faqat 1 ta so‘rov yuborish mumkin. Qolgan vaqt: 19s"
+  "error": "Har 1 daqiqada faqat 15 ta so‘rov yuborish mumkin. Qolgan vaqt: 19s"
 }
 ```
+
 ```json
 {
   "error": "API-Key header topilmadi"
 }
 ```
 
----
+## 2. Get Marketplace Products Info
 
-## 🧾 **2. Create Marketplace Order**
+Endpoint:
 
-**Endpoint:**  
+```text
+POST /marketplace/products/info
 ```
-POST /api/v1/marketplace/order
-```
 
----
+Headers:
 
-### **🔖 Headers**
 | Name | Type | Required | Description |
-|------|------|-----------|-------------|
-| API-Key | string | ✅ | Partner tomonidan berilgan API kaliti |
-| AppName | string | ✅ | Ilova nomi (masalan: `YesPOS`) |
-| Content-Type | string | ✅ | `application/json` |
+|------|------|----------|-------------|
+| API-Key | string | Yes | API kaliti |
+| Branch | string | Yes | Branch yoki object qiymati |
 
----
+Rate limit:
 
-### **📦 Request Body**
+- Scope: `org_id + branch`
+- Window: `1 minute`
+- Limit: `10 requests`
+
+Cache:
+
+- Scope: `org_id + branch`
+- TTL: `5 minutes`
+
+Success response:
+
+```json
+{
+  "code": 0,
+  "message": "OK",
+  "data": [
+    {
+      "product": {
+        "id": 101,
+        "category": 1,
+        "name": "Coffee",
+        "sku": "COF-101",
+        "image": "https://cdn.example.com/coffee.jpg",
+        "description": "Ground coffee"
+      },
+      "stock": {
+        "item_id": 101,
+        "stock": 12,
+        "low_stock": 3,
+        "last_update": 1741863731
+      },
+      "price": {
+        "id": 15,
+        "item": 101,
+        "value": 25000,
+        "price_type": 2,
+        "to_quantity": 0,
+        "value2": 0,
+        "currency": 1,
+        "is_delete": false,
+        "last_updated": 1741863900
+      }
+    },
+    {
+      "product": {
+        "id": 102,
+        "category": 1,
+        "name": "Tea",
+        "sku": "TEA-102",
+        "image": "",
+        "description": ""
+      },
+      "stock": {
+        "item_id": 102,
+        "stock": 4,
+        "low_stock": 1,
+        "last_update": 1741863800
+      },
+      "price": null
+    }
+  ]
+}
+```
+
+Response fields:
+
+- `product`: product ma'lumoti
+- `stock`: stock ma'lumoti; topilmasa `null`
+- `price`: price ma'lumoti; topilmasa yoki o‘chirilgan bo‘lsa `null`
+
+`product` fields:
+
+- `id`: product ID
+- `category`: category ID
+- `name`: product nomi
+- `sku`: product SKU
+- `image`: product rasmi
+- `description`: product tavsifi
+
+`stock` fields:
+
+- `item_id`: product ID
+- `stock`: joriy qoldiq
+- `low_stock`: minimal qoldiq
+- `last_update`: Unix timestamp seconds
+
+`price` fields:
+
+- `id`: narx ID
+- `item`: product ID
+- `value`: narx
+- `price_type`: narx turi
+- `to_quantity`: hozir `0`
+- `value2`: hozir `0`
+- `currency`: currency ID
+- `is_delete`: `true` bo‘lsa narx o‘chirilgan deb hisoblanadi
+- `last_updated`: Unix timestamp seconds
+
+Request example:
+
+```bash
+curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info' \
+  -H 'API-Key: <TOKEN>' \
+  -H 'Branch: 1'
+```
+
+Error responses:
+
+```json
+{
+  "error": "API-Key header topilmadi"
+}
+```
+
+```json
+{
+  "error": "Branch header topilmadi"
+}
+```
+
+```json
+{
+  "error": "Noto‘g‘ri API-Key"
+}
+```
+
+```json
+{
+  "error": "Har 1 daqiqada faqat 10 ta so‘rov yuborish mumkin. Qolgan vaqt: 49s"
+}
+```
+
+## 3. Create Marketplace Order
+
+Endpoint:
+
+```text
+POST /marketplace/order
+```
+
+Headers:
+
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| API-Key | string | Yes | Partner tomonidan berilgan API kaliti |
+| AppName | string | Yes | Ilova nomi, masalan `YesPOS` |
+| Content-Type | string | Yes | `application/json` |
+
+Request body:
+
 ```json
 {
   "type": 1,
@@ -110,36 +272,38 @@ POST /api/v1/marketplace/order
 }
 ```
 
----
+Body parametr izohi:
 
-### **🧠 Body Parametr Izohi**
 | Field | Type | Required | Description |
-|--------|------|-----------|-------------|
-| `type` | int | ✅ | 1 — **Order (buyurtma)**, 2 — **Refund (qaytarish)** |
-| `note` | string | ❌ | Buyurtma haqida eslatma (ixtiyoriy) |
-| `delivery_info` | object / null | ❌ | Yetkazib berish haqida ma’lumot (bo‘lishi shart emas) |
-| `delivery_info.scheduled_time` | string | ❌ | Rejalashtirilgan vaqt (bo‘lishi mumkin yoki bo‘lmasligi mumkin) |
-| `delivery_info.distance` | number | ❌ | Masofa (metrda) |
-| `delivery_info.delivery_fee` | number | ❌ | Yetkazib berish summasi |
-| `items` | array | ✅ | Buyurtma ichidagi mahsulotlar ro‘yxati |
-| `items[].item` | int | ✅ | Mahsulot ID |
-| `items[].qty` | number | ✅ | Mahsulot soni |
-| `items[].price` | number | ✅ | Mahsulot bir dona narxi |
-| `payments` | array | ✅ | To‘lov usullari ro‘yxati |
-| `payments[].payment_id` | int | ✅ | To‘lov turi:<br>• 1 — Naqd pul<br>• 2 — Bank karta<br>• 4 — Click<br>• 5 — Payme |
-| `payments[].value` | number | ✅ | To‘lov summasi |
+|------|------|----------|-------------|
+| `type` | int | Yes | `1` order, `2` refund |
+| `note` | string | No | Buyurtma eslatmasi |
+| `delivery_info` | object or null | No | Yetkazib berish ma'lumoti |
+| `delivery_info.scheduled_time` | string | No | Rejalashtirilgan vaqt |
+| `delivery_info.distance` | number | No | Masofa, metrda |
+| `delivery_info.delivery_fee` | number | No | Yetkazib berish summasi |
+| `items` | array | Yes | Mahsulotlar ro‘yxati |
+| `items[].item` | int | Yes | Mahsulot ID |
+| `items[].qty` | number | Yes | Mahsulot soni |
+| `items[].price` | number | Yes | Bir dona narx |
+| `payments` | array | Yes | To‘lovlar ro‘yxati |
+| `payments[].payment_id` | int | Yes | To‘lov turi ID |
+| `payments[].value` | number | Yes | To‘lov summasi |
 
----
+Business qoidalar:
 
-### ⚠️ **Business Qoidalar**
-1. Agar `delivery_info` kerak bo‘lmasa — uni `null` yoki umuman yubormaslik mumkin.  
-2. `type = 1` — bu **order (buyurtma)**, `type = 2` — bu **refund (qaytarish)**.  
-3. `items` ichidagi barcha `qty * price` yig‘indisi **`payments` dagi `value` lar yig‘indisiga teng** bo‘lishi **shart**.  
-4. Xatolik bo‘lsa, server JSON formatda xabar yuboradi.  
+1. `delivery_info` kerak bo‘lmasa `null` yoki umuman yubormaslik mumkin.
+2. `type = 1` order, `type = 2` refund.
+3. `items` ichidagi umumiy summa `payments` yig‘indisiga mos bo‘lishi kerak.
+4. Xatolik bo‘lsa server JSON qaytaradi.
 
----
+Current throttle behavior:
 
-### **✅ Success Response**
+- Endpoint ketma-ket so‘rovlarni cheklaydi.
+- Error matni hozir `Har 1 sekundda faqat 1 ta so‘rov yuborish mumkin...` ko‘rinishida qaytadi.
+
+Success response:
+
 ```json
 {
   "code": 0,
@@ -148,57 +312,74 @@ POST /api/v1/marketplace/order
 }
 ```
 
----
+Error response:
 
-### **❌ Error Response**
 ```json
 {
-  "error": "Har 1 daqiqada faqat 1 ta so‘rov yuborish mumkin. Qolgan vaqt: 45s"
+  "error": "Har 1 sekundda faqat 1 ta so‘rov yuborish mumkin. Qolgan vaqt: 1s"
 }
 ```
-yoki
+
 ```json
 {
   "error": "API-Key header topilmadi"
 }
 ```
 
----
+Curl example:
 
-### **🧩 Misol (curl bilan)**
 ```bash
-curl --location 'https://base_url/api/v1/marketplace/order' --header 'API-Key: demo-CI6IkpXVCJ9.eyJhdXRob3' --header 'AppName: YesPOS' --header 'Content-Type: application/json' --data '{
-  "type": 1,
-  "note": "test eslatman",
-  "delivery_info": null,
-  "items": [
-    { "item": 2, "qty": 2, "price": 15000 }
-  ],
-  "payments": [
-    { "payment_id": 1, "value": 30000 }
-  ]
-}'
+curl --location 'https://base_url/api/v1/marketplace/order' \
+  --header 'API-Key: demo-token' \
+  --header 'AppName: YesPOS' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "type": 1,
+    "note": "test eslatman",
+    "delivery_info": null,
+    "items": [
+      { "item": 2, "qty": 2, "price": 15000 }
+    ],
+    "payments": [
+      { "payment_id": 1, "value": 30000 }
+    ]
+  }'
 ```
 
+## 4. Branch List
 
-## 🏬 **3. Branch List**
+Endpoint:
 
-**Endpoint:**  
-```
+```text
 POST /branch/list
 ```
 
-**Headers:**
-| Name | Type | Required | Description |
-|------|------|-----------|-------------|
-| Content-Type | string | ✅ | `application/json` |
+Headers:
 
-**Request Body:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| API-Key | string | Yes | API kaliti |
+| Content-Type | string | Yes | `application/json` |
+
+Request body:
+
 ```json
 {}
 ```
 
-**✅ Success Response:**
+Rate limit:
+
+- Scope: `API-Key`
+- Window: `1 minute`
+- Limit: `15 requests`
+
+Cache:
+
+- Scope: `API-Key + org_id`
+- TTL: `1 minute`
+
+Success response:
+
 ```json
 {
   "code": 0,
@@ -222,55 +403,63 @@ POST /branch/list
 }
 ```
 
-**❌ Error Response:**
+Error response:
+
 ```json
 {
-  "error": "Har 1 daqiqada faqat 1 ta so‘rov yuborish mumkin. Qolgan vaqt: 57s"
+  "error": "Har 1 daqiqada faqat 15 ta so‘rov yuborish mumkin. Qolgan vaqt: 57s"
 }
 ```
 
----
+## 5. Webhook: Stock and Price Update
 
+Current status:
 
-## **4. Webhook: Qoldiq va Narx yangilanishi**
+- This repository does not expose a webhook endpoint for this flow.
+- The contract below is kept as an external integration format for partner webhook receivers.
 
-Webhook URL **partner tomonidan taqdim etiladi.**
-Tizim mahsulot narxi yoki qoldig‘i o‘zgarganda, avtomatik quyidagi JSON yuboradi.
+Endpoint:
 
-### Endpoint
-`POST {partner_webhook_url}`
+```text
+POST {partner_webhook_url}
+```
 
-### Headers
-## Header	Qiymat
-Authorization	Basic <base64(username:password)>
-Content-Type	application/json
+Headers:
 
-### Request Body
+| Name | Value |
+|------|-------|
+| Authorization | `Basic <base64(username:password)>` |
+| Content-Type | `application/json` |
+
+Request body:
+
 ```json
 {
-    "api_key": "demo-CI6IkpXVCJ9.eyJhdXRob3",
-    "branch": 1,
-    "products": [
-        {
-            "product_id": 1,
-            "price": 1000,
-            "stock": 2
-        }
-    ]
+  "api_key": "demo-token",
+  "branch": 1,
+  "products": [
+    {
+      "product_id": 1,
+      "price": 1000,
+      "stock": 2
+    }
+  ]
 }
 ```
 
-### ✅ Success Response
+Success response:
+
 ```json
 {
-    "status": "success",
-    "message": "Webhook received successfully"
+  "status": "success",
+  "message": "Webhook received successfully"
 }
 ```
 
-### ❌ Error Response
+Error response:
+
 ```json
 {
-    "error": "Invalid API key"
+  "error": "Invalid API key"
 }
 ```
