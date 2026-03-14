@@ -97,14 +97,10 @@ Headers:
 
 Rate limit:
 
-- Scope: `org_id + branch`
+- Scope: `API-Key`
 - Window: `1 minute`
 - Limit: `10 requests`
 
-Cache:
-
-- Scope: `org_id + branch`
-- TTL: `5 minutes`
 
 Success response:
 
@@ -114,48 +110,16 @@ Success response:
   "message": "OK",
   "data": [
     {
-      "product": {
-        "id": 101,
-        "category": 1,
-        "name": "Coffee",
-        "sku": "COF-101",
-        "image": "https://cdn.example.com/coffee.jpg",
-        "description": "Ground coffee"
-      },
-      "stock": {
-        "item_id": 101,
-        "stock": 12,
-        "low_stock": 3,
-        "last_update": 1741863731
-      },
-      "price": {
-        "id": 15,
-        "item": 101,
-        "value": 25000,
-        "price_type": 2,
-        "to_quantity": 0,
-        "value2": 0,
-        "currency": 1,
-        "is_delete": false,
-        "last_updated": 1741863900
-      }
+      "product_id": 101,
+      "price": 25000,
+      "stock": 12,
+      "low_stock": 3
     },
     {
-      "product": {
-        "id": 102,
-        "category": 1,
-        "name": "Tea",
-        "sku": "TEA-102",
-        "image": "",
-        "description": ""
-      },
-      "stock": {
-        "item_id": 102,
-        "stock": 4,
-        "low_stock": 1,
-        "last_update": 1741863800
-      },
-      "price": null
+      "product_id": 102,
+      "price": 0,
+      "stock": 4,
+      "low_stock": 1
     }
   ]
 }
@@ -163,37 +127,10 @@ Success response:
 
 Response fields:
 
-- `product`: product ma'lumoti
-- `stock`: stock ma'lumoti; topilmasa `null`
-- `price`: price ma'lumoti; topilmasa yoki o‘chirilgan bo‘lsa `null`
-
-`product` fields:
-
-- `id`: product ID
-- `category`: category ID
-- `name`: product nomi
-- `sku`: product SKU
-- `image`: product rasmi
-- `description`: product tavsifi
-
-`stock` fields:
-
-- `item_id`: product ID
-- `stock`: joriy qoldiq
-- `low_stock`: minimal qoldiq
-- `last_update`: Unix timestamp seconds
-
-`price` fields:
-
-- `id`: narx ID
-- `item`: product ID
-- `value`: narx
-- `price_type`: narx turi
-- `to_quantity`: hozir `0`
-- `value2`: hozir `0`
-- `currency`: currency ID
-- `is_delete`: `true` bo‘lsa narx o‘chirilgan deb hisoblanadi
-- `last_updated`: Unix timestamp seconds
+- `product_id`: product ID
+- `price`: narx; topilmasa yoki o‘chirilgan bo‘lsa `0`
+- `stock`: joriy qoldiq; topilmasa `0`
+- `low_stock`: minimal qoldiq; topilmasa `0`
 
 Request example:
 
