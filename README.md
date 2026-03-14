@@ -27,6 +27,31 @@ Request body:
 {}
 ```
 
+Filtered request body:
+
+```json
+{
+  "product_ids": [38, 39]
+}
+```
+
+If `product_ids` is sent, only those products are returned. If body is empty or `product_ids` is missing, all products are returned.
+
+Body fields:
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `product_ids` | array of int | No | Faqat shu product ID larni qaytaradi |
+
+Curl example:
+
+```bash
+curl -X POST 'http://localhost:8080/api/v1/marketplace/products' \
+  -H 'API-Key: <TOKEN>' \
+  -H 'Content-Type: application/json' \
+  -d '{"product_ids":[38,39]}'
+```
+
 Rate limit:
 
 - Scope: `API-Key`
@@ -94,6 +119,29 @@ Headers:
 |------|------|----------|-------------|
 | API-Key | string | Yes | API kaliti |
 | Branch | string | Yes | Branch yoki object qiymati |
+| Content-Type | string | Yes | `application/json` |
+
+Request body:
+
+```json
+{}
+```
+
+Filtered request body:
+
+```json
+{
+  "product_ids": [101, 102]
+}
+```
+
+If `product_ids` is sent, only those products are returned. If body is empty or `product_ids` is missing, all products are returned.
+
+Body fields:
+
+| Field | Type | Required | Description |
+|------|------|----------|-------------|
+| `product_ids` | array of int | No | Faqat shu product ID lar uchun `price`, `stock`, `low_stock` qaytaradi |
 
 Rate limit:
 
@@ -137,7 +185,19 @@ Request example:
 ```bash
 curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info' \
   -H 'API-Key: <TOKEN>' \
-  -H 'Branch: 1'
+  -H 'Branch: 1' \
+  -H 'Content-Type: application/json' \
+  -d '{"product_ids":[101,102]}'
+```
+
+All products request example:
+
+```bash
+curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info' \
+  -H 'API-Key: <TOKEN>' \
+  -H 'Branch: 1' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 Error responses:
@@ -302,6 +362,15 @@ Request body:
 
 ```json
 {}
+```
+
+Curl example:
+
+```bash
+curl -X POST 'http://localhost:8080/api/v1/branch/list' \
+  -H 'API-Key: <TOKEN>' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 ```
 
 Rate limit:
