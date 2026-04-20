@@ -63,43 +63,48 @@ Cache:
 - Scope: `API-Key`
 - TTL: `1 minute`
 
+Upstream fetch behavior:
+
+- Local endpoint client uchun pagination ochmaydi.
+- Gateway tashqi `marketplace-products-by-category` API ni ichkarida `page` va `limit=1000` bilan barcha sahifalarni olib yig'adi.
+
 Success response:
 
 ```json
 {
-    "code": 0,
-    "message": "OK",
-    "data": [
+  "code": 0,
+  "message": "OK",
+  "data": [
+    {
+      "id": 66,
+      "parent": 0,
+      "name": "Напитки",
+      "image": "temp-images/upload-20260108-224216-a8a8e163.jpg",
+      "description": "",
+      "products": [
         {
-            "id": 66,
-            "parent": 0,
-            "name": "Напитки",
-            "image": "temp-images/upload-20260108-224216-a8a8e163.jpg",
-            "description": "",
-            "products": [
-                {
-                    "id": 549,
-                    "category": 66,
-                    "name": "Coca-cola 0.5L ",
-                    "sku": "10523",
-                    "image": "",
-                    "description": "",
-                    "classcode": "02106999999000000",
-                    "package_code": 1514409
-                },
-                {
-                    "id": 550,
-                    "category": 66,
-                    "name": "Coca-cola 1.0L edited",
-                    "sku": "10524",
-                    "image": "",
-                    "description": "",
-                    "classcode": "02106999999000000",
-                    "package_code": 1514409
-                }
-            ]
+          "id": 549,
+          "category": 66,
+          "name": "Coca-cola 0.5L ",
+          "sku": "10523",
+          "image": "",
+          "description": "",
+          "classcode": "02106999999000000",
+          "package_code": 1514409
+        },
+        {
+          "id": 550,
+          "category": 66,
+          "name": "Coca-cola 1.0L edited",
+          "sku": "10524",
+          "image": "",
+          "description": "",
+          "classcode": "02106999999000000",
+          "package_code": 1514409
         }
-    ]
+      ]
+    }
+  ]
 }
 ```
 
@@ -125,6 +130,15 @@ Endpoint:
 POST /marketplace/products/info
 ```
 
+Query params:
+
+| Name | Type | Required | Default | Description |
+|------|------|----------|---------|-------------|
+| `page` | int | No | `1` | Pagination sahifasi. `page` yuborilsa va `limit` yuborilmasa `limit=100` ishlatiladi |
+| `limit` | int | No | all items | Har bir sahifadagi elementlar soni. Maksimum `500` |
+
+`per_page` query param ham `limit` uchun alias sifatida ishlaydi.
+
 Headers:
 
 | Name | Type | Required | Description |
@@ -149,6 +163,8 @@ Filtered request body:
 
 If `product_ids` is sent, only those products are returned. If body is empty or `product_ids` is missing, all products are returned.
 
+Pagination `product_ids` filterdan keyin qo'llanadi.
+
 Body fields:
 
 | Field | Type | Required | Description |
@@ -161,6 +177,10 @@ Rate limit:
 - Window: `1 minute`
 - Limit: `10 requests`
 
+Upstream fetch behavior:
+
+- Gateway `itemsStockV2` va `pricesV2` tashqi API larini `page` va `limit=1000` bilan barcha sahifalarni olib yig'adi.
+- Local client response esa query dagi `page` va `limit` bo'yicha paginated qaytadi.
 
 Success response:
 
@@ -181,7 +201,13 @@ Success response:
       "stock": 4,
       "low_stock": 1
     }
-  ]
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 2,
+    "total_items": 2,
+    "total_pages": 1
+  }
 }
 ```
 
@@ -191,11 +217,15 @@ Response fields:
 - `price`: narx; topilmasa yoki o‘chirilgan bo‘lsa `0`
 - `stock`: joriy qoldiq; topilmasa `0`
 - `low_stock`: minimal qoldiq; topilmasa `0`
+- `pagination.page`: joriy sahifa
+- `pagination.limit`: sahifa hajmi. Query param berilmasa `data` dagi jami elementlar soniga teng bo'ladi
+- `pagination.total_items`: filter va branch bo'yicha topilgan jami mahsulotlar soni
+- `pagination.total_pages`: jami sahifalar soni
 
 Request example:
 
 ```bash
-curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info' \
+curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info?page=1&limit=50' \
   -H 'API-Key: <TOKEN>' \
   -H 'Branch: 1' \
   -H 'Content-Type: application/json' \
@@ -206,6 +236,16 @@ All products request example:
 
 ```bash
 curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info' \
+  -H 'API-Key: <TOKEN>' \
+  -H 'Branch: 1' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+Paginated all products request example:
+
+```bash
+curl -X POST 'http://localhost:8080/api/v1/marketplace/products/info?page=2&limit=100' \
   -H 'API-Key: <TOKEN>' \
   -H 'Branch: 1' \
   -H 'Content-Type: application/json' \
@@ -235,6 +275,18 @@ Error responses:
 ```json
 {
   "error": "Har 1 daqiqada faqat 10 ta so‘rov yuborish mumkin. Qolgan vaqt: 49s"
+}
+```
+
+```json
+{
+  "error": "page must be a positive integer"
+}
+```
+
+```json
+{
+  "error": "limit must be less than or equal to 500"
 }
 ```
 
@@ -480,4 +532,91 @@ Error response:
 {
   "error": "Invalid API key"
 }
+```
+
+## 6. Upstream API Pagination Talabi
+
+`/marketplace/products` va `/marketplace/products/info` endpointlari endi tashqi API dan ma'lumotni `1000` tadan sahifalab olib yig'adi. Shu sabab upstream API quyidagi o'zgarishlarni qo'llashi kerak.
+
+Umumiy qoidalar:
+
+- `limit` maksimum `1000` bo'lsin.
+- `page` `1` dan boshlansin.
+- So'ralgan sahifada data tugagan bo'lsa `data: []` qaytsin.
+- Pagination parametrlari ishlamasa gateway xato qaytaradi.
+- `itemsStockV2` va `pricesV2` da natija tartibi stabil bo'lsin: `fromDate` filter qo'llangandan keyin `last_update` yoki `last_updated` bo'yicha o'sish tartibida, keyin `item_id` yoki `item` bo'yicha.
+
+### 6.1 `marketplace-products-by-category`
+
+Endpoint:
+
+```text
+POST {upstream_base_url}marketplace-products-by-category
+```
+
+Request body:
+
+```json
+{
+  "page": 1,
+  "limit": 1000
+}
+```
+
+Izoh:
+
+- Mavjud filterlar bo'lsa o'shalar saqlanadi, faqat body ga `page` va `limit` qo'shiladi.
+- Pagination productlar kesimida ishlasin. Bir category bir nechta sahifaga bo'linishi mumkin.
+- Response format o'zgarmaydi, faqat `data` ichida shu sahifadagi category/productlar qaytadi.
+
+Request example:
+
+```bash
+curl -X POST 'https://upstream.example.com/marketplace-products-by-category' \
+  -H 'API-Key: <UPSTREAM_TOKEN>' \
+  -H 'Content-Type: application/json' \
+  -d '{"page":1,"limit":1000}'
+```
+
+### 6.2 `itemsStockV2`
+
+Endpoint:
+
+```text
+GET {upstream_base_url}itemsStockV2?fromDate=1710316800&page=1&limit=1000
+```
+
+Izoh:
+
+- `Branch` header avvalgidek majburiy qoladi.
+- `fromDate` filterdan keyingi natija sahifalanadi.
+- Response format o'zgarmaydi, faqat `data` ichida shu sahifadagi stock yozuvlari qaytadi.
+
+Request example:
+
+```bash
+curl -X GET 'https://upstream.example.com/itemsStockV2?fromDate=1710316800&page=1&limit=1000' \
+  -H 'API-Key: <UPSTREAM_TOKEN>' \
+  -H 'Branch: 1'
+```
+
+### 6.3 `pricesV2`
+
+Endpoint:
+
+```text
+GET {upstream_base_url}pricesV2?object=1&fromDate=1710316800&page=1&limit=1000
+```
+
+Izoh:
+
+- `object` query param avvalgidek branch qiymati bilan yuboriladi.
+- `fromDate` filterdan keyingi natija sahifalanadi.
+- Response format o'zgarmaydi, faqat `data` ichida shu sahifadagi narx yozuvlari qaytadi.
+
+Request example:
+
+```bash
+curl -X GET 'https://upstream.example.com/pricesV2?object=1&fromDate=1710316800&page=1&limit=1000' \
+  -H 'API-Key: <UPSTREAM_TOKEN>'
 ```
